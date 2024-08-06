@@ -20,7 +20,7 @@
 
 - [Docker](https://docs.docker.com/get-docker/)
 - [Git](https://git-scm.com/)
-- 注意这里用的端口是8082
+- 注意这里用的端口是80
 
 ## 使用步骤
 
@@ -36,7 +36,7 @@ sh docker-automation.sh
 docker ps -f "dnmp-php"
 
 # 4. 访问页面
-curl http://localhost:8082
+curl http://localhost
 
 # 5. 进入容器
 docker exec -it dnmp-php /bin/sh
