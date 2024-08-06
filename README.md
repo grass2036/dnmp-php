@@ -1,7 +1,7 @@
 # dnmp-php
 
 # DNMP-PHP Docker Automation
-
+使用最新的 PHP 8.2 FPM Alpine 镜像作为基础镜像
 此项目包含一个自动化脚本，用于构建、运行、访问和管理 Docker 容器。
 
 ## 目录
