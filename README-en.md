@@ -4,6 +4,12 @@
 Use the latest PHP 8.2 FPM Alpine image as the base image. 
 This project includes an automation script for building, running, accessing, and managing Docker containers.
 
+## Features
+
+*   **Lightweight and Efficient**: Built on the `php:8.2-fpm-alpine` image, with a multi-stage build approach and careful dependency management to remove unnecessary build tools and files, significantly reducing the final image size.
+*   **Secure and Reliable**: By default, the `php-fpm` service runs as a non-root user (`appuser`) to enhance container security. The automation script includes `set -e` to ensure a safe exit if any command fails.
+*   **Performance Optimized**: The Nginx configuration has been optimized (`worker_processes auto`) to automatically adjust the number of worker processes based on the server's CPU cores, maximizing server performance.
+
 Table of Contents
 Build Docker Image
 Run Docker Container
