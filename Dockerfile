@@ -1,4 +1,4 @@
-# Use the latest PHP 8.2 FPM Alpine image as the base image. 
+# Use the latest PHP 8.2 FPM Alpine image as the base image.
 FROM php:8.2-fpm-alpine
 
 # Set maintainer information
@@ -10,17 +10,23 @@ ENV TIMEZONE=Asia/Shanghai
 # Setting the working directory
 WORKDIR /var/www/html
 
-# Install system dependencies, PHP extensions, Nginx and Composer, and install vim
-RUN apk add --no-cache tzdata nginx supervisor curl vim \
-    && cp /usr/share/zoneinfo/${TIMEZONE} /etc/localtime \
-    && echo "${TIMEZONE}" > /etc/timezone \
-    && apk del tzdata \
-    && apk add --no-cache $PHPIZE_DEPS \
+# Install system dependencies, PHP extensions, Nginx and Composer, and clean up build deps in one go.
+# No vim installed to keep image small.
+RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
         libzip-dev \
         libpng-dev \
         jpeg-dev \
         freetype-dev \
         postgresql-dev \
+    && apk add --no-cache tzdata nginx supervisor curl \
+        libzip \
+        libpng \
+        jpeg \
+        freetype \
+        postgresql-libs \
+    && cp /usr/share/zoneinfo/${TIMEZONE} /etc/localtime \
+    && echo "${TIMEZONE}" > /etc/timezone \
+    && apk del tzdata \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
         pdo_mysql \
@@ -31,7 +37,8 @@ RUN apk add --no-cache tzdata nginx supervisor curl vim \
         bcmath \
     && pecl install redis \
     && docker-php-ext-enable redis \
-    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer \
+    && apk del .build-deps
 
 # Configure PHP
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
@@ -55,6 +62,9 @@ COPY default.conf /etc/nginx/conf.d/default.conf
 
 # Configure Supervisor
 COPY supervisord.conf /etc/supervisord.conf
+
+# Add custom PHP-FPM config to run as non-root user
+COPY zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 
 # Expose port 80 for Nginx to use
 EXPOSE 80
